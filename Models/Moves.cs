@@ -1,4 +1,5 @@
 using PokeMovedle.Utils;
+using System.Text.Json;
 using System.Text.Json.Serialization;
 
 namespace PokeMovedle.Models.Moves
@@ -6,9 +7,13 @@ namespace PokeMovedle.Models.Moves
 
     public sealed class MoveManager
     {
-        private static MoveManager? instance = null;
-        private DateTime lastTimestamp { set; get; }
-        public Move? move { set; get; }
+        private static MoveManager? instance { get; set; } = null;
+        public static List<MinimalMove>? moves { get; private set; } = new List<MinimalMove>();
+        private static string MOVES_FILE_NAME = "./data/moveNames.json";
+        public static MoveFetcher moveFetcher { private get; set; } = new PokeAPIMoveFetcher();
+
+        public Move? move { get; private set; }
+        private DateTime lastTimestamp { get; set; }
 
         private MoveManager(Move? startMove)
         {
@@ -19,7 +24,9 @@ namespace PokeMovedle.Models.Moves
         {
             if (instance == null)
             {
-                instance = new MoveManager(await newMove());
+                instance = new MoveManager(await moveFetcher.fetchNewMove());
+                using FileStream stream = File.OpenRead(MOVES_FILE_NAME);
+                moves = await JsonSerializer.DeserializeAsync<List<MinimalMove>>(stream);
             }
             return instance;
         }
@@ -27,14 +34,6 @@ namespace PokeMovedle.Models.Moves
         private static DateTime newTimestamp()
         {
             return new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0, DateTimeKind.Utc);
-        }
-
-        private static async Task<Move?> newMove()
-        {
-            int ID_MIN = 1;
-            int ID_MAX = 748;
-            int id = Globals.random.Next(ID_MIN, ID_MAX);
-            return await Move.fetch(id);
         }
 
     }
@@ -51,27 +50,51 @@ namespace PokeMovedle.Models.Moves
         [JsonPropertyName("damage_class")]
         public required NamedEnumField<DamageClass> damageClass { get; set; }
 
+    }
 
-        public static async Task<Move?> fetch(int id)
+    public class MinimalMove
+    {
+        public required string name { get; init; }
+        public required int id { get; init; }
+    }
+
+    public interface MoveFetcher
+    {
+        Task<Move?> fetchNewMove();
+    }
+
+    public class DummyMoveFetcher : MoveFetcher
+    {
+        private Move? move { get; set; } = null;
+        private static string FILE_NAME = "./data/dummyMove.json";
+
+        public async Task<Move?> fetchNewMove()
         {
-            return await fetchWith(id.ToString());
+            if (move != null) return move;
+
+            using FileStream stream = File.OpenRead(FILE_NAME);
+            Move? deserializedMove = await JsonSerializer.DeserializeAsync<Move>(stream);
+            move = deserializedMove;
+            return move;
         }
+    }
 
-        public static async Task<Move?> fetch(string name)
+    public class PokeAPIMoveFetcher : MoveFetcher
+    {
+        public async Task<Move?> fetchNewMove()
         {
-            return await fetchWith(name);
-        }
+            List<MinimalMove>? moves = MoveManager.moves;
+            if (moves == null) throw new InvalidOperationException("Null moves list.");
 
-        private static async Task<Move?> fetchWith(string data)
-        {
-            HttpResponseMessage res = await Globals.client.GetAsync($"https://pokeapi.co/api/v2/move/{data}");
+            MinimalMove moveData = moves[Globals.random.Next(moves.Count)];
+
+            HttpResponseMessage res = await Globals.client.GetAsync($"https://pokeapi.co/api/v2/move/{moveData.id}");
             if (res.IsSuccessStatusCode)
             {
                 return await res.Content.ReadFromJsonAsync<Move>();
             }
             return null;
         }
-
     }
 
     public enum DamageClass

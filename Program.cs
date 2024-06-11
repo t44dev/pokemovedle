@@ -1,5 +1,6 @@
 using PokeMovedle.Models.Moves;
 
+MoveManager.moveFetcher = new DummyMoveFetcher();
 MoveManager manager = await MoveManager.Instance();
 var builder = WebApplication.CreateBuilder(args);
 

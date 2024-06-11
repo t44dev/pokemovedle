@@ -1,10 +1,12 @@
 ﻿@page
+@using PokeMovedle.Models.Moves
 @model IndexModel
 @{
     ViewData["Title"] = "Home";
+    Move? move = (await MoveManager.Instance()).move;
 }
 
 <div class="text-center">
-    <h1 class="display-4">Pokemon!!!</h1>
+    <h1 class="display-4">@move.name</h1>
     <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
 </div>
