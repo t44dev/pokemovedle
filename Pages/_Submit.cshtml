@@ -1,0 +1,27 @@
+@model GameModel
+@{
+    int guesses = GameModel.guesses;
+    int max = GameModel.MAX_GUESSES;
+}
+
+<input
+    type="search"
+    id="guess-input"
+    name="guess"
+    class="form-control"
+    list="guess-options"
+    placeholder="Type Move Name..."
+    aria-label="Pokemon Move Name"
+    hx-trigger="keyup[keyCode==13]"
+    hx-post="@Url.Page("Game", "Guess")"
+    hx-target="closest div"
+    disabled="@(guesses >= max)"
+/>
+<datalist 
+    id="guess-options"
+    hx-post="@Url.Page("Game", "Options")"
+    hx-trigger="input changed delay:500ms from:#guess-input, keyup[keyCode==13] from:#guess-input"
+    hx-target="this"
+    hx-include="[name='guess']"
+></datalist>
+<span class="input-group-text" id="guesses">@guesses/@max Guesses</span>

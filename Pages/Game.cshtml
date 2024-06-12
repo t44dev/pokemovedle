@@ -1,0 +1,24 @@
+@page
+@using PokeMovedle.Models.Moves
+@model GameModel 
+@{
+    ViewData["Title"] = "PokeMovedle";
+    Move? move = (await MoveManager.Instance()).move;
+}
+
+<div class="text-center">
+  <div class="container text-center m-3">
+    <div class="row align-items-start">
+      <div class="col-3"></div>
+      <div class="col-6">
+        <h1>PokeMovedle</h1>
+
+        <div class="input-group m-3">
+            @await Html.PartialAsync("_Submit", Model)
+        </div>
+
+      </div>
+      <div class="col-3"></div>
+    </div>
+  </div>
+</div>

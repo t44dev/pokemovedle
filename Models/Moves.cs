@@ -8,7 +8,7 @@ namespace PokeMovedle.Models.Moves
     public sealed class MoveManager
     {
         private static MoveManager? instance { get; set; } = null;
-        public static List<MinimalMove>? moves { get; private set; } = new List<MinimalMove>();
+        public static List<MinimalMove> moves { get; private set; } = new List<MinimalMove>();
         private static string MOVES_FILE_NAME = "./data/moveNames.json";
         public static MoveFetcher moveFetcher { private get; set; } = new PokeAPIMoveFetcher();
 
@@ -26,7 +26,11 @@ namespace PokeMovedle.Models.Moves
             {
                 instance = new MoveManager(await moveFetcher.fetchNewMove());
                 using FileStream stream = File.OpenRead(MOVES_FILE_NAME);
-                moves = await JsonSerializer.DeserializeAsync<List<MinimalMove>>(stream);
+                List<MinimalMove>? tempMoveList = await JsonSerializer.DeserializeAsync<List<MinimalMove>>(stream);
+                if (tempMoveList != null)
+                {
+                    moves = tempMoveList;
+                }
             }
             return instance;
         }
@@ -61,6 +65,8 @@ namespace PokeMovedle.Models.Moves
     public interface MoveFetcher
     {
         Task<Move?> fetchNewMove();
+        Task<Move?> fetch(int id);
+        Task<Move?> fetch(string name);
     }
 
     public class DummyMoveFetcher : MoveFetcher
@@ -77,6 +83,17 @@ namespace PokeMovedle.Models.Moves
             move = deserializedMove;
             return move;
         }
+
+        public Task<Move?> fetch(int id)
+        {
+            return Task.FromResult(move);
+        }
+
+        public Task<Move?> fetch(string name)
+        {
+            return Task.FromResult(move);
+        }
+
     }
 
     public class PokeAPIMoveFetcher : MoveFetcher
@@ -88,7 +105,22 @@ namespace PokeMovedle.Models.Moves
 
             MinimalMove moveData = moves[Globals.random.Next(moves.Count)];
 
-            HttpResponseMessage res = await Globals.client.GetAsync($"https://pokeapi.co/api/v2/move/{moveData.id}");
+            return await request(moveData.id.ToString());
+        }
+
+        public async Task<Move?> fetch(int id)
+        {
+            return await request(id.ToString());
+        }
+
+        public async Task<Move?> fetch(string name)
+        {
+            return await request(name);
+        }
+
+        private async Task<Move?> request(string value)
+        {
+            HttpResponseMessage res = await Globals.client.GetAsync($"https://pokeapi.co/api/v2/move/{value}");
             if (res.IsSuccessStatusCode)
             {
                 return await res.Content.ReadFromJsonAsync<Move>();
