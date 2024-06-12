@@ -1,12 +1,53 @@
-﻿@page
+@page
 @using PokeMovedle.Models.Moves
 @model IndexModel
 @{
-    ViewData["Title"] = "Home";
+    ViewData["Title"] = "PokeMovedle";
     Move? move = (await MoveManager.Instance()).move;
 }
 
 <div class="text-center">
-    <h1 class="display-4">@move.name</h1>
-    <p>Learn about <a href="https://learn.microsoft.com/aspnet/core">building Web apps with ASP.NET Core</a>.</p>
+  <div class="container text-center m-3">
+    <div class="row align-items-start">
+      <div class="col-3"></div>
+      <div class="col-6">
+        <h1>PokeMovedle</h1>
+
+        <div class="input-group m-2">
+          <input
+            type="text"
+            class="form-control"
+            placeholder="Enter Move Name..."
+            aria-label="Pokemon Move Name"
+            id="move-input"
+          />
+          <span class="input-group-text" id="guesses">0/6 Guesses</span>
+        </div>
+
+        <table class="table m-2">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Type</th>
+              <th scope="col">Class</th>
+              <th scope="col">Power</th>
+              <th scope="col">pp</th>
+              <th scope="col">Accuracy</th>
+            </tr>
+          </thead>
+          <tbody>
+            <tr>
+              <td>@move.name</td>
+              <td>@move.type.name.ToString()</td>
+              <td>@move.damageClass.name.ToString()</td>
+              <td>@move.power</td>
+              <td>@move.pp</td>
+              <td>@move.accuracy%</td>
+            </tr>
+          </tbody>
+        </table>
+      </div>
+      <div class="col-3"></div>
+    </div>
+  </div>
 </div>
