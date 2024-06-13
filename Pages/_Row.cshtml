@@ -1,7 +1,7 @@
-@model GameModel
+@model _GameModel 
 @using PokeMovedle.Models.Moves
 @{
-    Move move = GameModel.lastMove;
+    Move move = Model.guessedMove;
     Move correctMove = (await MoveManager.Instance()).move;
 }
 

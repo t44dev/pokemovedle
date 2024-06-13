@@ -1,6 +1,7 @@
 @page
 @using PokeMovedle.Models.Moves
-@model GameModel 
+@using PokeMovedle.Pages
+@model IndexModel
 @{
     ViewData["Title"] = "PokeMovedle";
     Move? move = (await MoveManager.Instance()).move;
@@ -17,9 +18,9 @@
             class="input-group m-3"
             autocomplete="false"
             id="guess-form"
-            hx-post="@Url.Page("Game", "Guess")"
+            hx-post="@Url.Page("Index", "Guess")"
         >
-            @await Html.PartialAsync("_Submit", Model)
+            @await Html.PartialAsync("_Submit", new _GameModel(null, 0))
         </form>
 
         <table class="table">
@@ -36,10 +37,10 @@
           <tbody 
               id="answers-body"
               hx-trigger="submit from:#guess-form"
-              hx-get="@Url.Page("Game", "Row")"
+              hx-get="@Url.Page("Index", "Row")"
               hx-target="this"
               hx-swap="afterbegin"
-              hx-include="[name='guess']"
+              hx-include="[id='guess-form']"
           >
           </tbody>
         </table>

@@ -1,7 +1,7 @@
-@model GameModel
+@model _GameModel 
 @{
-    int guesses = GameModel.guesses;
-    int max = GameModel.MAX_GUESSES;
+    int guesses = Model.guesses;
+    int max = _GameModel.MAX_GUESSES;
 }
 
 <input
@@ -16,10 +16,10 @@
 />
 <datalist 
     id="guess-options"
-    hx-post="@Url.Page("Game", "Options")"
+    hx-post="@Url.Page("Index", "Options")"
     hx-trigger="input changed delay:500ms from:#guess-input, submit from:#guess-form"
     hx-target="this"
-    hx-include="[name='guess']"
 ></datalist>
 <span class="input-group-text" id="guesses">@guesses/@max Guesses</span>
+<input type="number" name="guesses" hidden readonly value="@guesses" />
 <input type="submit" hidden />
