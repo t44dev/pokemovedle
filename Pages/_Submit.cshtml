@@ -12,16 +12,14 @@
     list="guess-options"
     placeholder="Type Move Name..."
     aria-label="Pokemon Move Name"
-    hx-trigger="keyup[keyCode==13]"
-    hx-post="@Url.Page("Game", "Guess")"
-    hx-target="closest div"
     disabled="@(guesses >= max)"
 />
 <datalist 
     id="guess-options"
     hx-post="@Url.Page("Game", "Options")"
-    hx-trigger="input changed delay:500ms from:#guess-input, keyup[keyCode==13] from:#guess-input"
+    hx-trigger="input changed delay:500ms from:#guess-input, submit from:#guess-form"
     hx-target="this"
     hx-include="[name='guess']"
 ></datalist>
 <span class="input-group-text" id="guesses">@guesses/@max Guesses</span>
+<input type="submit" hidden />

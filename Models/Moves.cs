@@ -1,4 +1,5 @@
 using PokeMovedle.Utils;
+using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
 
@@ -10,7 +11,7 @@ namespace PokeMovedle.Models.Moves
         private static MoveManager? instance { get; set; } = null;
         public static List<MinimalMove> moves { get; private set; } = new List<MinimalMove>();
         private static string MOVES_FILE_NAME = "./data/moveNames.json";
-        public static MoveFetcher moveFetcher { private get; set; } = new PokeAPIMoveFetcher();
+        public static MoveFetcher moveFetcher { get; set; } = new PokeAPIMoveFetcher();
 
         public Move? move { get; private set; }
         private DateTime lastTimestamp { get; set; }
@@ -24,13 +25,13 @@ namespace PokeMovedle.Models.Moves
         {
             if (instance == null)
             {
-                instance = new MoveManager(await moveFetcher.fetchNewMove());
                 using FileStream stream = File.OpenRead(MOVES_FILE_NAME);
                 List<MinimalMove>? tempMoveList = await JsonSerializer.DeserializeAsync<List<MinimalMove>>(stream);
                 if (tempMoveList != null)
                 {
                     moves = tempMoveList;
                 }
+                instance = new MoveManager(await moveFetcher.fetchNewMove());
             }
             return instance;
         }
@@ -54,12 +55,22 @@ namespace PokeMovedle.Models.Moves
         [JsonPropertyName("damage_class")]
         public required NamedEnumField<DamageClass> damageClass { get; set; }
 
+        public string FormatName() {
+            TextInfo tInfo = new CultureInfo("en-GB", false).TextInfo;
+            return tInfo.ToTitleCase(name.Replace("-", " "));
+        }
+
     }
 
     public class MinimalMove
     {
         public required string name { get; init; }
         public required int id { get; init; }
+
+        public string FormatName() {
+            TextInfo tInfo = new CultureInfo("en-GB", false).TextInfo;
+            return tInfo.ToTitleCase(name.Replace("-", " "));
+        }
     }
 
     public interface MoveFetcher

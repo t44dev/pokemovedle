@@ -1,0 +1,15 @@
+@model GameModel
+@using PokeMovedle.Models.Moves
+@{
+    Move move = GameModel.lastMove;
+    Move correctMove = (await MoveManager.Instance()).move;
+}
+
+<tr>
+    <td class="@(move.name == correctMove.name ? "table-success" : "table-danger")">@move.FormatName()</td>
+    <td class="@(move.type.name == correctMove.type.name ? "table-success" : "table-danger")">@move.type.name.ToString()</td>
+    <td class="@(move.power == correctMove.power ? "table-success" : "table-danger")">@move.power</td>
+    <td class="@(move.pp == correctMove.pp ? "table-success" : "table-danger")">@move.pp</td>
+    <td class="@(move.accuracy == correctMove.accuracy ? "table-success" : "table-danger")">@move.accuracy%</td>
+    <td class="@(move.damageClass.name == correctMove.damageClass.name ? "table-success" : "table-danger")">@move.damageClass.name.ToString()</td>
+</tr>

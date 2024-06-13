@@ -2,6 +2,7 @@ using PokeMovedle.Models.Moves;
 
 MoveManager.moveFetcher = new DummyMoveFetcher();
 MoveManager manager = await MoveManager.Instance();
+Console.WriteLine(manager.move?.name);
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.

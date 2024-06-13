@@ -13,9 +13,36 @@
       <div class="col-6">
         <h1>PokeMovedle</h1>
 
-        <div class="input-group m-3">
+        <form 
+            class="input-group m-3"
+            autocomplete="false"
+            id="guess-form"
+            hx-post="@Url.Page("Game", "Guess")"
+        >
             @await Html.PartialAsync("_Submit", Model)
-        </div>
+        </form>
+
+        <table class="table">
+          <thead>
+            <tr>
+              <th scope="col">Name</th>
+              <th scope="col">Type</th>
+              <th scope="col">Power</th>
+              <th scope="col">pp</th>
+              <th scope="col">Accuracy</th>
+              <th scope="col">Class</th>
+            </tr>
+          </thead>
+          <tbody 
+              id="answers-body"
+              hx-trigger="submit from:#guess-form"
+              hx-get="@Url.Page("Game", "Row")"
+              hx-target="this"
+              hx-swap="afterbegin"
+              hx-include="[name='guess']"
+          >
+          </tbody>
+        </table>
 
       </div>
       <div class="col-3"></div>
