@@ -6,7 +6,7 @@
 }
 
 <tr>
-    <td class="@(move.name == correctMove.name ? "table-success" : "table-danger")">@move.FormatName()</td>
+    <td class="@(move.name == correctMove.name ? "table-success" : "table-danger")">@Move.FormatName(move.name)</td>
     <td class="@(move.type.name == correctMove.type.name ? "table-success" : "table-danger")">@move.type.name.ToString()</td>
     <td class="@(move.power == correctMove.power ? "table-success" : "table-danger")">@move.power</td>
     <td class="@(move.pp == correctMove.pp ? "table-success" : "table-danger")">@move.pp</td>

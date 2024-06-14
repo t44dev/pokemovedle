@@ -2,16 +2,18 @@ using PokeMovedle.Utils;
 using System.Globalization;
 using System.Text.Json;
 using System.Text.Json.Serialization;
+using Microsoft.Extensions.Caching.Memory;
 
 namespace PokeMovedle.Models.Moves
 {
 
     public sealed class MoveManager
     {
+        const string MOVES_FILE_NAME = "./data/moveNames.json";
+
         private static MoveManager? instance { get; set; } = null;
         public static List<MinimalMove> moves { get; private set; } = new List<MinimalMove>();
-        private static string MOVES_FILE_NAME = "./data/moveNames.json";
-        public static MoveFetcher moveFetcher { get; set; } = new PokeAPIMoveFetcher();
+        public static MoveFetcher moveFetcher { get; set; } = new DummyMoveFetcher();
 
         public Move? move { get; private set; }
         private DateTime lastTimestamp { get; set; }
@@ -25,20 +27,25 @@ namespace PokeMovedle.Models.Moves
         {
             if (instance == null)
             {
+                // Move List
                 using FileStream stream = File.OpenRead(MOVES_FILE_NAME);
                 List<MinimalMove>? tempMoveList = await JsonSerializer.DeserializeAsync<List<MinimalMove>>(stream);
-                if (tempMoveList != null)
-                {
-                    moves = tempMoveList;
-                }
-                instance = new MoveManager(await moveFetcher.fetchNewMove());
+                if (tempMoveList != null) moves = tempMoveList;
+
+                // Move
+                instance = new MoveManager(await NewMove());
             }
             return instance;
         }
 
-        private static DateTime newTimestamp()
+        private static DateTime NewTimestamp()
         {
             return new DateTime(DateTime.UtcNow.Year, DateTime.UtcNow.Month, DateTime.UtcNow.Day, 0, 0, 0, DateTimeKind.Utc);
+        }
+
+        private static async Task<Move?> NewMove()
+        {
+            return await moveFetcher.FetchNewMove();
         }
 
     }
@@ -55,9 +62,16 @@ namespace PokeMovedle.Models.Moves
         [JsonPropertyName("damage_class")]
         public required NamedEnumField<DamageClass> damageClass { get; set; }
 
-        public string FormatName() {
+        public static string FormatName(string name)
+        {
             TextInfo tInfo = new CultureInfo("en-GB", false).TextInfo;
             return tInfo.ToTitleCase(name.Replace("-", " "));
+        }
+
+        public static string DeFormatName(string name)
+        {
+            TextInfo tInfo = new CultureInfo("en-GB", false).TextInfo;
+            return name.ToLower().Replace(" ", "-");
         }
 
     }
@@ -66,26 +80,22 @@ namespace PokeMovedle.Models.Moves
     {
         public required string name { get; init; }
         public required int id { get; init; }
-
-        public string FormatName() {
-            TextInfo tInfo = new CultureInfo("en-GB", false).TextInfo;
-            return tInfo.ToTitleCase(name.Replace("-", " "));
-        }
     }
 
     public interface MoveFetcher
     {
-        Task<Move?> fetchNewMove();
-        Task<Move?> fetch(int id);
-        Task<Move?> fetch(string name);
+        Task<Move?> FetchNewMove();
+        Task<Move?> Fetch(int id);
+        Task<Move?> Fetch(string name);
     }
 
     public class DummyMoveFetcher : MoveFetcher
     {
-        private Move? move { get; set; } = null;
-        private static string FILE_NAME = "./data/dummyMove.json";
+        const string FILE_NAME = "./data/dummyMove.json";
 
-        public async Task<Move?> fetchNewMove()
+        private Move? move { get; set; } = null;
+
+        public async Task<Move?> FetchNewMove()
         {
             if (move != null) return move;
 
@@ -95,12 +105,12 @@ namespace PokeMovedle.Models.Moves
             return move;
         }
 
-        public Task<Move?> fetch(int id)
+        public Task<Move?> Fetch(int id)
         {
             return Task.FromResult(move);
         }
 
-        public Task<Move?> fetch(string name)
+        public Task<Move?> Fetch(string name)
         {
             return Task.FromResult(move);
         }
@@ -109,33 +119,46 @@ namespace PokeMovedle.Models.Moves
 
     public class PokeAPIMoveFetcher : MoveFetcher
     {
-        public async Task<Move?> fetchNewMove()
+
+        private IMemoryCache cache { get; init; }
+
+        public PokeAPIMoveFetcher(IMemoryCache cache) { this.cache = cache; }
+
+        public async Task<Move?> FetchNewMove()
         {
-            List<MinimalMove>? moves = MoveManager.moves;
-            if (moves == null) throw new InvalidOperationException("Null moves list.");
+            List<MinimalMove> moves = MoveManager.moves;
+            if (moves.Count == 0) throw new InvalidOperationException("Empty moves list.");
 
             MinimalMove moveData = moves[Globals.random.Next(moves.Count)];
 
-            return await request(moveData.id.ToString());
+            return await Request(moveData.id.ToString());
         }
 
-        public async Task<Move?> fetch(int id)
+        public async Task<Move?> Fetch(int id)
         {
-            return await request(id.ToString());
+            return await Request(id.ToString());
         }
 
-        public async Task<Move?> fetch(string name)
+        public async Task<Move?> Fetch(string name)
         {
-            return await request(name);
+            return await Request(name);
         }
 
-        private async Task<Move?> request(string value)
+        private async Task<Move?> Request(string query)
         {
-            HttpResponseMessage res = await Globals.client.GetAsync($"https://pokeapi.co/api/v2/move/{value}");
-            if (res.IsSuccessStatusCode)
-            {
-                return await res.Content.ReadFromJsonAsync<Move>();
+            if (cache.TryGetValue(query, out object? value) && value is Move cachedMove) {
+                Console.WriteLine($"Returning cached Move from {query}");
+                return cachedMove;
             }
+
+            Console.WriteLine($"API call for Move from {query}");
+            HttpResponseMessage res = await Globals.client.GetAsync($"https://pokeapi.co/api/v2/move/{query}");
+            if (res.IsSuccessStatusCode) {
+                Move apiMove = await res.Content.ReadFromJsonAsync<Move>();
+                cache.Set(query, apiMove);
+                return apiMove;
+            }
+
             return null;
         }
     }

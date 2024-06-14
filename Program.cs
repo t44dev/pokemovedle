@@ -1,14 +1,17 @@
 using PokeMovedle.Models.Moves;
+using Microsoft.Extensions.Caching.Memory;
 
-MoveManager.moveFetcher = new DummyMoveFetcher();
-MoveManager manager = await MoveManager.Instance();
-Console.WriteLine(manager.move?.name);
 var builder = WebApplication.CreateBuilder(args);
 
 // Add services to the container.
 builder.Services.AddRazorPages();
+builder.Services.AddMemoryCache();
 
 var app = builder.Build();
+
+// Setup MoveManager
+MoveManager.moveFetcher = new PokeAPIMoveFetcher(app.Services.GetRequiredService<IMemoryCache>());
+MoveManager manager = await MoveManager.Instance();
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())
