@@ -12,6 +12,7 @@ var app = builder.Build();
 // Setup MoveManager
 MoveManager.moveFetcher = new PokeAPIMoveFetcher(app.Services.GetRequiredService<IMemoryCache>());
 MoveManager manager = await MoveManager.Instance();
+Console.WriteLine(manager.move?.name);
 
 // Configure the HTTP request pipeline.
 if (!app.Environment.IsDevelopment())

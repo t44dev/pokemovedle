@@ -7,7 +7,7 @@ public class _GameModel : PageModel
 {
     public Move? guessedMove { get; private set; }
     public int guesses { get; private set; }
-    public const int MAX_GUESSES = 6;
+    public const int MAX_GUESSES = 8;
 
     public _GameModel(Move move, int guesses)
     {
