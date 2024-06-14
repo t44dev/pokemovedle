@@ -9,7 +9,8 @@ builder.Services.AddMemoryCache();
 
 var app = builder.Build();
 
-// Setup MoveManager
+// Setup
+DamageMap.cache = app.Services.GetRequiredService<IMemoryCache>();
 MoveManager.moveFetcher = new PokeAPIMoveFetcher(app.Services.GetRequiredService<IMemoryCache>());
 MoveManager manager = await MoveManager.Instance();
 Console.WriteLine(manager.move?.name);

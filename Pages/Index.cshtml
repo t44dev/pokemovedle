@@ -16,7 +16,7 @@
 
         <form 
             class="input-group m-3"
-            autocomplete="false"
+            autocomplete="off"
             id="guess-form"
             hx-post="@Url.Page("Index", "Guess")"
         >
@@ -45,8 +45,13 @@
           </tbody>
         </table>
 
+        <div id="answer-modal">
+        </div>
       </div>
-      <div class="col-3"></div>
+      <div class="col-3">
+          <div id="legend">
+          </div>
+      </div>
     </div>
   </div>
 </div>

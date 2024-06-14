@@ -192,4 +192,54 @@ namespace PokeMovedle.Models.Moves
         FAIRY
     }
 
+    public class DamageMap {
+        [JsonConverter(typeof(JsonStringEnumConverter))]
+        [JsonPropertyName("name")]
+        public required PokeType type { get; init; }
+        [JsonPropertyName("damage_relations")]
+        public required Dictionary<string, List<NamedEnumField<PokeType>>> mapping { get; init; }
+//        [JsonPropertyName("double_damage_from")]
+//        public required List<NamedEnumField<PokeType>> doubleDamageFrom { get; init; }
+//        [JsonPropertyName("double_damage_to")]
+//        public required List<NamedEnumField<PokeType>> doubleDamageTo { get; init; }
+//        [JsonPropertyName("half_damage_from")]
+//        public required List<NamedEnumField<PokeType>> halfDamageFrom { get; init; }
+//        [JsonPropertyName("half_damage_to")]
+//        public required List<NamedEnumField<PokeType>> halfDamageTo { get; init; }
+//        [JsonPropertyName("no_damage_from")]
+//        public required List<NamedEnumField<PokeType>> noDamageFrom { get; init; }
+//        [JsonPropertyName("no_damage_to")]
+//        public required List<NamedEnumField<PokeType>> noDamageTo { get; init; }
+
+        public static IMemoryCache cache { private get; set; }
+
+        private static async Task<DamageMap?> fetch(PokeType type) {
+            if (cache != null && cache.TryGetValue(type, out object? value) && value is DamageMap cachedDamageMap) {
+                Console.WriteLine($"Returning cached DamageMap from {type.ToString()}");
+                return cachedDamageMap;
+            }
+
+            Console.WriteLine($"API call for DamageMap from {type.ToString()}");
+            HttpResponseMessage res = await Globals.client.GetAsync($"https://pokeapi.co/api/v2/type/{type.ToString().ToLower()}");
+            if (res.IsSuccessStatusCode) {
+                DamageMap? apiDamageMap = await res.Content.ReadFromJsonAsync<DamageMap>();
+                if (cache != null) cache.Set(type, apiDamageMap);
+                return apiDamageMap;
+            }
+
+            return null;
+        }
+
+        public static async Task<float> effectiveTo(PokeType attacker, PokeType defender) {
+            DamageMap? damageMap = await fetch(attacker);
+            if (damageMap == null) return 1.0f;
+
+            Dictionary<string, List<NamedEnumField<PokeType>>> mapping = damageMap.mapping;
+            foreach (NamedEnumField<PokeType> type in mapping["double_damage_to"]) if (type.name == defender) return 2.0f;
+            foreach (NamedEnumField<PokeType> type in mapping["half_damage_to"]) if (type.name == defender) return 0.5f;
+            foreach (NamedEnumField<PokeType> type in mapping["no_damage_to"]) if (type.name == defender) return 0.0f;
+            return 1.0f;
+        }
+    }
+
 }

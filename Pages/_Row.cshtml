@@ -30,11 +30,21 @@
         if (b == null) return "table-danger";
         return a.Equals(b) ? "table-success" : "table-danger";
     }
+
+    async Task<string> MoveCellBadge(PokeType attacker, PokeType defender)
+    {
+        float value = await DamageMap.effectiveTo(attacker, defender);
+        string colour;
+        if (value > 1.0) colour = "bg-info";
+        else if (value < 1.0) colour = "bg-warning";
+        else colour = "bg-secondary";
+        return $"""<span class="badge {colour}">{value}x</span>""";
+    }
 }
 
 <tr>
     <td class="@TableColour(move.name, correctMove.name)">@Move.FormatName(move.name)</td>
-    <td class="@TableColour(move.type.name, correctMove.type.name)">@move.type.name.ToString()</td>
+    <td class="@TableColour(move.type.name, correctMove.type.name)">@move.type.name.ToString() @Html.Raw(await MoveCellBadge(move.type.name, correctMove.type.name))</td>
     <td class="@TableColour(move.power, correctMove.power)">@move.power @Indicator(move.power, correctMove.power)</td>
     <td class="@TableColour(move.pp, correctMove.pp)">@move.pp @Indicator(move.pp, correctMove.pp)</td>
     <td class="@TableColour(move.accuracy, correctMove.accuracy)">@(move.accuracy != null ? move.accuracy.ToString() + '%' : "") @Indicator(move.accuracy, correctMove.accuracy)</td>
