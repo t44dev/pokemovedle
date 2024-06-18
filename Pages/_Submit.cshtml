@@ -1,7 +1,10 @@
 @model _GameModel 
+@using PokeMovedle.Models.Moves
 @{
+    MoveContext ctx = new MoveContext();
     int guesses = Model.guesses;
     int max = _GameModel.MAX_GUESSES;
+    bool disable = (guesses >= max) || (Model.guessedMove?.id == (await ctx.GetMove()).id);
 }
 
 <input autocomplete="false" type="text" hidden/>
@@ -13,7 +16,7 @@
     list="guess-options"
     placeholder="Type Move Name..."
     aria-label="Pokemon Move Name"
-    disabled="@(guesses >= max)"
+    disabled="@disable"
 />
 <datalist 
     id="guess-options"
