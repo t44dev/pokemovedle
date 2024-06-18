@@ -40,7 +40,7 @@
         <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
       </div>
       <div class="modal-body">
-          <h2>@(correctGuess ? "Correct! " : "You suck!") The Move Was:</h2>
+          <h2>@(correctGuess ? "Correct! " : "You Suck!") The move was:</h2>
           <h1>@(Move.FormatName((await ctx.GetMove()).name))</h1>
           <hr>
           <h2>Next Move In:</h2>
