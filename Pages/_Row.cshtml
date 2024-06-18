@@ -1,8 +1,9 @@
 @model _GameModel 
 @using PokeMovedle.Models.Moves
 @{
+    MoveContext ctx = new MoveContext();
     Move move = Model.guessedMove;
-    Move correctMove = (await MoveManager.Instance()).move;
+    Move correctMove = await ctx.GetMove();
 
     string Indicator(int? a, int? b) 
     { 
@@ -33,7 +34,8 @@
 
     async Task<string> MoveCellBadge(PokeType attacker, PokeType defender)
     {
-        float value = await DamageMap.effectiveTo(attacker, defender);
+        // TODO: Move cell fix
+        float value = 1.0f;
         string colour;
         if (value > 1.0) colour = "bg-info";
         else if (value < 1.0) colour = "bg-warning";
@@ -44,9 +46,9 @@
 
 <tr>
     <td class="@TableColour(move.name, correctMove.name)">@Move.FormatName(move.name)</td>
-    <td class="@TableColour(move.type.name, correctMove.type.name)">@move.type.name.ToString() @Html.Raw(await MoveCellBadge(move.type.name, correctMove.type.name))</td>
+    <td class="@TableColour(move.type, correctMove.type)">@move.type.ToString() @Html.Raw(await MoveCellBadge(move.type, correctMove.type))</td>
     <td class="@TableColour(move.power, correctMove.power)">@move.power @Indicator(move.power, correctMove.power)</td>
     <td class="@TableColour(move.pp, correctMove.pp)">@move.pp @Indicator(move.pp, correctMove.pp)</td>
     <td class="@TableColour(move.accuracy, correctMove.accuracy)">@(move.accuracy != null ? move.accuracy.ToString() + '%' : "") @Indicator(move.accuracy, correctMove.accuracy)</td>
-    <td class="@TableColour(move.damageClass.name, correctMove.damageClass.name)">@move.damageClass.name.ToString()</td>
+    <td class="@TableColour(move.damageClass, correctMove.damageClass)">@move.damageClass.ToString()</td>
 </tr>
