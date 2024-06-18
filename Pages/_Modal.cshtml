@@ -1,0 +1,51 @@
+@model _GameModel 
+@using PokeMovedle.Models.Moves
+@{
+    MoveContext ctx = new MoveContext();
+    bool correctGuess = Model.guessedMove.id == (await ctx.GetMove()).id; 
+    DateTime nextTime = MoveContext.lastTimestamp.AddDays(1);
+}
+
+<script>
+    // Time
+    const finalTime = new Date("@(nextTime.ToString("u"))");
+    const updateTimer = () => {
+        let ms = finalTime - Date.now();
+        let hours = "00", minutes = "00", seconds = "00";
+        if (ms >= 0) {
+            hours = String(Math.floor(ms/3600000)).padStart(2, '0');
+            ms = ms - (hours * 3600000);
+            minutes = String(Math.floor(ms/60000)).padStart(2, '0');
+            ms = ms - (minutes * 60000);
+            seconds = String(Math.floor(ms/1000)).padStart(2, '0');
+        } else {
+            clearInterval(timeout);
+        }
+        const timer = document.getElementById("answer-modal-timer");
+        if (timer != null) {
+            timer.innerHTML = `${hours}:${minutes}:${seconds}`;
+        }
+    };
+    updateTimer();
+    const timeout = setInterval(updateTimer, 1000);
+    // Modal
+    const modal = new bootstrap.Modal(document.getElementById("answer-modal"));
+    modal.show();
+</script>
+<div class="modal fade" id="answer-modal" tabindex="-1" aria-hidden="true">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <div class="modal-header text-light @(correctGuess ? "bg-success" : "bg-danger")">
+        <h5 class="modal-title" id="answer-modal-label">You @(correctGuess ? "Win" : "Lose")!</h5>
+        <button type="button" class="btn-close" data-bs-dismiss="modal" aria-label="Close"></button>
+      </div>
+      <div class="modal-body">
+          <h2>@(correctGuess ? "Correct! " : "You suck!") The Move Was:</h2>
+          <h1>@(Move.FormatName((await ctx.GetMove()).name))</h1>
+          <hr>
+          <h2>Next Move In:</h2>
+          <h3 id="answer-modal-timer"></h3>
+      </div>
+    </div>
+  </div>
+</div>

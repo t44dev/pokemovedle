@@ -44,7 +44,13 @@
           </tbody>
         </table>
 
-        <div id="answer-modal">
+        <div 
+            id="answer-modal-container"
+            hx-trigger="submit from:#guess-form"
+            hx-get="@Url.Page("Index", "Modal")"
+            hx-target="this"
+            hx-include="[id='guess-form']"
+        >
         </div>
       </div>
       <div class="col-3">

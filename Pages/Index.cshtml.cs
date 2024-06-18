@@ -15,7 +15,8 @@ public class IndexModel : PageModel
             : Page();
     }
 
-    private Move? moveFromGuess(string guess, MoveContext ctx) {
+    private Move? moveFromGuess(string guess, MoveContext ctx)
+    {
         if (guess == null) guess = "";
         guess = Move.DeFormatName(guess);
 
@@ -63,6 +64,18 @@ public class IndexModel : PageModel
         }
 
         return Content(result, "text/html");
+    }
+
+
+    public async Task<IActionResult> OnGetModal([FromQuery(Name = "guess")] string guess, [FromQuery(Name = "guesses")] int guesses)
+    {
+        MoveContext ctx = new MoveContext();
+
+        Move? guessedMove = moveFromGuess(guess, ctx);
+        bool gameOver = (guessedMove != null) && ((guessedMove.id == (await ctx.GetMove()).id) || (guesses + 1 >= _GameModel.MAX_GUESSES));
+        if ((guessedMove == null) || !gameOver) return StatusCode(404);
+
+        return Partial("_Modal", new _GameModel(guessedMove, guesses + 1));
     }
 
 }

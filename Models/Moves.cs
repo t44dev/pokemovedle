@@ -12,7 +12,7 @@ namespace PokeMovedle.Models.Moves
         public string dbPath { get; private set; }
 
         private static Move? move { get; set; }
-        private static DateTime lastTimestamp { get; set; } = NewTimestamp();
+        public static DateTime lastTimestamp { get; set; } = NewTimestamp();
 
         public MoveContext()
         {
