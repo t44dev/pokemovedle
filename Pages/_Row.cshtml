@@ -34,8 +34,7 @@
 
     async Task<string> MoveCellBadge(PokeType attacker, PokeType defender)
     {
-        // TODO: Move cell fix
-        float value = 1.0f;
+        float value = ctx.matchups.Find(attacker, defender).multiplier;
         string colour;
         if (value > 1.0) colour = "bg-info";
         else if (value < 1.0) colour = "bg-warning";

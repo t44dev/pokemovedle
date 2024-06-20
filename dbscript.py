@@ -10,22 +10,22 @@ class PokeType(Enum):
     FIRE = 1
     WATER = 2
     ELECTRIC = 3
-    GRASS = 5
-    ICE = 6
-    FIGHTING = 7
-    POISON = 8
-    GROUND = 9
-    FLYING = 10
-    PSYCHIC = 11
-    BUG = 12
-    ROCK = 13
-    GHOST = 14
-    DRAGON = 15
-    DARK = 16
-    STEEL = 17
-    FAIRY = 18
-    UNKNOWN = 19
-    SHADOW = 20
+    GRASS = 4
+    ICE = 5
+    FIGHTING = 6
+    POISON = 7
+    GROUND = 8
+    FLYING = 9
+    PSYCHIC = 10
+    BUG = 11
+    ROCK = 12
+    GHOST = 13
+    DRAGON = 14
+    DARK = 15
+    STEEL = 16
+    FAIRY = 17
+    UNKNOWN = 18
+    SHADOW = 19
 
 
 class DamageClass(Enum):
