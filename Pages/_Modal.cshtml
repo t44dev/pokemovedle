@@ -21,6 +21,16 @@
       <div class="modal-body">
           <h2>@(correctGuess ? "Correct! " : "You Suck!") The move was:</h2>
           <h1>@(Move.FormatName((await ctx.GetMove()).name))</h1>
+          <button 
+            type="button" 
+            class="btn btn-primary"
+            hx-get="@Url.Page("Index", "Results")"
+            hx-swap="none"
+            hx-on::config-request="event.detail.parameters['moves'] = localStorage.getItem('moves')"
+            hx-on::after-request="if (event.detail.successful) navigator.clipboard.writeText(event.detail.xhr.responseText)"
+          >
+            <i class="bi bi-clipboard-fill"></i> Share
+          </button>
           <hr>
           @await Html.PartialAsync("_MoveTimer", new IndexModel())
       </div>

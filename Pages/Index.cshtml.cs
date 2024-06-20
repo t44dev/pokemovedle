@@ -24,15 +24,22 @@ public class IndexModel : PageModel
         if (day == MoveContext.GetDay())
         {
             reset = false;
-            string[] moveStrings = moves.Split(",");
-            foreach (string moveString in moveStrings)
-            {
-                Move? move = moveFromGuess(moveString, ctx);
-                if (move != null) moveList.Insert(0, move);
-            }
+            moveList = movesFromGuesses(moves, ctx);
         }
 
         return Partial("_Persist", new _PersistModel(reset, moveList));
+    }
+
+    private List<Move> movesFromGuesses(string guesses, MoveContext ctx)
+    {
+        List<Move> moveList = new List<Move>();
+        string[] moveStrings = guesses.Split(",");
+        foreach (string moveString in moveStrings)
+        {
+            Move? move = moveFromGuess(moveString, ctx);
+            if (move != null) moveList.Insert(0, move);
+        }
+        return moveList;
     }
 
     private Move? moveFromGuess(string guess, MoveContext ctx)
@@ -96,6 +103,40 @@ public class IndexModel : PageModel
         if ((guessedMove == null) || !gameOver) return StatusCode(404);
 
         return Partial("_Modal", new _GameModel(guessedMove, guesses + 1));
+    }
+
+    public async Task<IActionResult> OnGetResults([FromQuery(Name = "moves")] string? moves)
+    {
+        MoveContext ctx = new MoveContext();
+        Move correctMove = await ctx.GetMove();
+
+        if (moves == null) moves = "";
+        List<Move> moveList = movesFromGuesses(moves, ctx);
+
+        // Build result
+        // Header
+        string result = $"PokeMovedle {MoveContext.GetDay()}\n";
+        // Moves
+        foreach (Move move in moveList)
+        {
+            result = result + processMoveResultString(move, correctMove);
+        }
+        // Attempts
+        result = result + $"{moveList.Count()}/{_GameModel.MAX_GUESSES} Attempts";
+
+        return Content(result);
+    }
+
+    private string processMoveResultString(Move g, Move c)
+    {
+        string s<T>(T a, T b) { 
+            if (a == null && b == null) return "🟩";
+            if (a == null) return "🟥";
+            if (b == null) return "🟥";
+            return a.Equals(b) ? "🟩" : "🟥";
+        }
+
+        return $"{s(g.name,c.name)}{s(g.type,c.type)}{s(g.power,c.power)}{s(g.pp,c.pp)}{s(g.accuracy,c.accuracy)}{s(g.damageClass,c.damageClass)}\n";
     }
 
 }
