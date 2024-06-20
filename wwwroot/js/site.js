@@ -30,7 +30,7 @@ const persistGuess = (name) => {
     if (currentValue == null) {
         result = name
     } else {
-        result = result + "," + name
+        result = currentValue + "," + name
     }
     localStorage.setItem("moves", result)
 }

@@ -2,8 +2,15 @@
 @using PokeMovedle.Pages
 @model _PersistModel 
 @{
+    MoveContext ctx = new MoveContext();
     int listCount = Model.guessedMoves.Count<Move>();
     int currentDay = MoveContext.GetDay();
+    bool gameOver = false;
+    Move? lastGuess = null;
+    if (!Model.reset && listCount > 0) {
+        lastGuess = Model.guessedMoves.First<Move>();
+        gameOver = ((lastGuess.id == (await ctx.GetMove()).id) || (listCount >= _GameModel.MAX_GUESSES));
+    }
 }
 
 @if (Model.reset) {
@@ -25,7 +32,7 @@
                 id="guess-form"
                 hx-post="@Url.Page("Index", "Guess")"
             >
-                @await Html.PartialAsync("_Submit", new _GameModel(null, listCount))
+                @await Html.PartialAsync("_Submit", new _GameModel(lastGuess, listCount))
             </form>
 
             <table class="table">
@@ -48,10 +55,11 @@
                   hx-include="[id='guess-form']"
                   hx-on::config-request="window.lastGuessName = event.detail.parameters.guess"
                   hx-on::after-request="if (event.detail.successful) persistGuess(window.lastGuessName)"
-              </tbody>
+              >
                 @for (int i = 0; i < listCount; i++) {
                     @Html.Partial("_Row", new _GameModel(Model.guessedMoves[i], i))
                 }
+              </tbody>
             </table>
 
             <div 
@@ -61,6 +69,9 @@
                 hx-target="this"
                 hx-include="[id='guess-form']"
             >
+            @if (gameOver) {
+                @await Html.PartialAsync("_Modal", new _GameModel(lastGuess, listCount))
+            }
             </div>
         </div>
         <div class="col-3">
@@ -68,4 +79,4 @@
         </div>
     </div>
 </div>
-  </div>
+</div>
