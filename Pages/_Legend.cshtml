@@ -1,0 +1,45 @@
+@model IndexModel
+@using PokeMovedle.Models.Moves
+
+<div class="accordion" id="legend-accordion">
+<div class="accordion-item">
+    <h2 class="accordion-header" id="legend-header">
+        <button class="accordion-button" type="button" data-bs-toggle="collapse" data-bs-target="#legend-collapse" aria-expanded="true" aria-controls="legend-collapse">
+            Legend
+        </button>
+    </h2>
+    <div id="legend-collapse" class="accordion-collapse show" aria-labelledby="legend-header" data-bs-parent="#legend-accordion">
+        <div class="accordion-body">
+        <table class="table">
+        <tbody>
+            <tr>
+                <th scope="row" class="table-success"></th>
+                <td>The value in this cell matches the target value.</td>
+            </tr>
+            <tr>
+                <th scope="row" class="table-danger"></th>
+                <td>The value in this cell does not match the target value.</td>
+            </tr>
+            <tr>
+                <th scope="row" class="table-danger">▲</th>
+                <td>Target value is higher than guessed value in this cell.</td>
+            </tr>
+            <tr>
+                <th scope="row" class="table-danger">▼</th>
+                <td>Target value is lower than guessed value in this cell.</td>
+            </tr>
+            <tr>
+                <th scope="row">
+                    @await Html.PartialAsync("_Badge", new _BadgeModel(PokeType.NORMAL, PokeType.NORMAL))<br/>
+                    @await Html.PartialAsync("_Badge", new _BadgeModel(PokeType.FIGHTING, PokeType.NORMAL))<br/>
+                    @await Html.PartialAsync("_Badge", new _BadgeModel(PokeType.WATER, PokeType.GRASS))<br/>
+                    @await Html.PartialAsync("_Badge", new _BadgeModel(PokeType.NORMAL, PokeType.GHOST))<br/>
+                </th>
+                <td>Guessed move type is this many times effective against target move type.</td>
+            </tr>
+        </tbody>
+        </table>
+        </div>
+    </div>
+</div>
+</div>

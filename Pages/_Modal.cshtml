@@ -7,27 +7,6 @@
 }
 
 <script>
-    // Time
-    const finalTime = new Date("@(nextTime.ToString("u"))");
-    const updateTimer = () => {
-        let ms = finalTime - Date.now();
-        let hours = "00", minutes = "00", seconds = "00";
-        if (ms >= 0) {
-            hours = String(Math.floor(ms/3600000)).padStart(2, '0');
-            ms = ms - (hours * 3600000);
-            minutes = String(Math.floor(ms/60000)).padStart(2, '0');
-            ms = ms - (minutes * 60000);
-            seconds = String(Math.floor(ms/1000)).padStart(2, '0');
-        } else {
-            clearInterval(timeout);
-        }
-        const timer = document.getElementById("answer-modal-timer");
-        if (timer != null) {
-            timer.innerHTML = `${hours}:${minutes}:${seconds}`;
-        }
-    };
-    updateTimer();
-    const timeout = setInterval(updateTimer, 1000);
     // Modal
     const modal = new bootstrap.Modal(document.getElementById("answer-modal"));
     modal.show();
@@ -43,8 +22,7 @@
           <h2>@(correctGuess ? "Correct! " : "You Suck!") The move was:</h2>
           <h1>@(Move.FormatName((await ctx.GetMove()).name))</h1>
           <hr>
-          <h2>Next Move In:</h2>
-          <h3 id="answer-modal-timer"></h3>
+          @await Html.PartialAsync("_MoveTimer", new IndexModel())
       </div>
     </div>
   </div>

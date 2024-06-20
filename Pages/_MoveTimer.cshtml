@@ -1,0 +1,11 @@
+@model IndexModel
+@using PokeMovedle.Models.Moves
+@{
+    MoveContext ctx = new MoveContext();
+    DateTime nextTime = MoveContext.lastTimestamp.AddDays(1);
+}
+<script>
+    forceUpdateTimer();
+</script>
+<h2>Next Move In:</h2>
+<h3 class="next-move-timer"></h3>

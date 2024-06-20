@@ -1,4 +1,9 @@
-﻿<!DOCTYPE html>
+﻿@using PokeMovedle.Models.Moves
+@{
+    MoveContext ctx = new MoveContext();
+    DateTime nextTime = MoveContext.lastTimestamp.AddDays(1);
+}
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="utf-8" />
@@ -25,6 +30,16 @@
 
     <script src="~/lib/bootstrap/dist/js/bootstrap.bundle.min.js"></script>
     <script src="~/js/site.js" asp-append-version="true"></script>
+    <script>
+        const finalTime = new Date("@(nextTime.ToString("u"))");
+        const timeout = setInterval(() => {
+            if (updateTimer(finalTime)) {
+                clearInterval(timeout);
+                location.reload();
+            }
+        }, 1000);
+        const forceUpdateTimer = () => updateTimer(finalTime);
+    </script>
 
     @await RenderSectionAsync("Scripts", required: false)
 </body>

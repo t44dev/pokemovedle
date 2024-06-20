@@ -5,7 +5,7 @@ var builder = WebApplication.CreateBuilder(args);
 builder.Services.AddRazorPages();
 
 // Setup
-Console.WriteLine(((int)(await (new MoveContext()).GetMove()).type));
+Console.WriteLine((await (new MoveContext()).GetMove()).name);
 
 var app = builder.Build();
 

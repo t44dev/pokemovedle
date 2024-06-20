@@ -1,0 +1,9 @@
+@model _BadgeModel
+@{
+    float multiplier = Model.multiplier;
+    string colour = "bg-secondary";
+    if (multiplier > 1.0) colour = "bg-info";
+    else if (multiplier < 1.0) colour = "bg-warning";
+}
+
+<span class="badge @colour">@(multiplier)x</span>
