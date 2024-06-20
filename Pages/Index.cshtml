@@ -6,57 +6,24 @@
     ViewData["Title"] = "PokeMovedle";
 }
 
-<div class="text-center">
-  <div class="container text-center m-3">
-    <div class="row align-items-start">
-      <div class="col-3"></div>
-      <div class="col-6">
-        <h1>PokeMovedle</h1>
-
-        <form 
-            class="input-group m-3"
-            autocomplete="off"
-            id="guess-form"
-            hx-post="@Url.Page("Index", "Guess")"
-        >
-            @await Html.PartialAsync("_Submit", new _GameModel(null, 0))
-        </form>
-
-        <table class="table">
-          <thead>
-            <tr>
-              <th scope="col">Name</th>
-              <th scope="col">Type</th>
-              <th scope="col">Power</th>
-              <th scope="col">pp</th>
-              <th scope="col">Accuracy</th>
-              <th scope="col">Class</th>
-            </tr>
-          </thead>
-          <tbody 
-              id="answers-body"
-              hx-trigger="submit from:#guess-form"
-              hx-get="@Url.Page("Index", "Row")"
-              hx-target="this"
-              hx-swap="afterbegin"
-              hx-include="[id='guess-form']"
-          >
-          </tbody>
-        </table>
-
-        <div 
-            id="answer-modal-container"
-            hx-trigger="submit from:#guess-form"
-            hx-get="@Url.Page("Index", "Modal")"
-            hx-target="this"
-            hx-include="[id='guess-form']"
-        >
-        </div>
-      </div>
-      <div class="col-3">
-          <div id="legend">
-          </div>
-      </div>
-    </div>
-  </div>
+<div class="position-absolute top-50 start-50 spinner-border" role="status">
+  <span class="visually-hidden">Loading...</span>
 </div>
+<form 
+    id="load-form"
+    hx-get="@Url.Page("Index", "Persist")"
+    hx-target="main"
+    hx-swap="innerHTML"
+    hx-trigger="load"
+>
+    <input type="number" name="day" id="load-day" hidden />
+    <input type="text" name="moves" id="load-moves" hidden />
+</form>
+<script>
+    let day = localStorage.getItem("day");
+    if (day == null) day = -1;
+    let moves = localStorage.getItem("moves");
+    if (moves == null) moves = "";
+    document.getElementById("load-day").value = day;
+    document.getElementById("load-moves").value = moves;
+</script>

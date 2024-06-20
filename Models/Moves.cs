@@ -13,6 +13,7 @@ namespace PokeMovedle.Models.Moves
 
         private static Move? move { get; set; }
         public static DateTime lastTimestamp { get; set; } = NewTimestamp();
+        private static DateTime firstTimestamp { get; } = new DateTime(2024, 6, 20, 0, 0, 0, DateTimeKind.Utc);
 
         public MoveContext()
         {
@@ -38,6 +39,10 @@ namespace PokeMovedle.Models.Moves
                 move = await moves.Skip(moveNumber).FirstAsync<Move>();
             }
             return move;
+        }
+
+        public static int GetDay() {
+            return (lastTimestamp - firstTimestamp).Days + 1;
         }
 
     }

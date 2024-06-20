@@ -10,9 +10,29 @@ public class IndexModel : PageModel
     public async Task<IActionResult> OnGet()
     {
         MoveContext ctx = new MoveContext();
-        return (await ctx.GetMove()) == null
-            ? StatusCode(500)
-            : Page();
+
+        return (await ctx.GetMove() == null) ? StatusCode(500) : Page();
+    }
+
+    public IActionResult OnGetPersist([FromQuery(Name = "day")] int? day, [FromQuery(Name = "moves")] string? moves)
+    {
+        MoveContext ctx = new MoveContext();
+        if (moves == null) moves = "";
+
+        bool reset = true;
+        List<Move> moveList = new List<Move>();
+        if (day == MoveContext.GetDay())
+        {
+            reset = false;
+            string[] moveStrings = moves.Split(",");
+            foreach (string moveString in moveStrings)
+            {
+                Move? move = moveFromGuess(moveString, ctx);
+                if (move != null) moveList.Insert(0, move);
+            }
+        }
+
+        return Partial("_Persist", new _PersistModel(reset, moveList));
     }
 
     private Move? moveFromGuess(string guess, MoveContext ctx)

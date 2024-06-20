@@ -1,7 +1,7 @@
 // Please see documentation at https://learn.microsoft.com/aspnet/core/client-side/bundling-and-minification
 // for details on configuring this project to bundle and minify static web assets.
 
-// Write your JavaScript code.
+// antiforgery
 document.addEventListener("htmx:configRequest", (evt) => {
     let httpVerb = evt.detail.verb.toUpperCase();
     if (httpVerb === 'GET') return;
@@ -23,3 +23,14 @@ document.addEventListener("htmx:configRequest", (evt) => {
         }
     }
 });
+
+// local storage handling
+const persistGuess = (name) => {
+    currentValue = localStorage.getItem("moves");
+    if (currentValue == null) {
+        result = name
+    } else {
+        result = result + "," + name
+    }
+    localStorage.setItem("moves", result)
+}
